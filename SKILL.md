@@ -70,15 +70,35 @@ These were the conventions that emerged from the three reference cases. They're 
 - **Heavy Gaussian smoothing (σ=6-12 samples)** on the cx/cy/zoom timeline for category 1 — eliminates micro-saccades from the underlying detection noise.
 - **Cross-dissolves are rare**: maximum 2 in a 60-second multi-shot edit, only at emotionally-justified transitions (entry into climax, exit toward conclusion). Default to hard cuts.
 
+## Optional: subtitle (.srt) sidecar
+
+If the user provides lyrics — either as a text file dropped next to the source in `depot/`, or pasted directly in the prompt — produce a `.srt` sidecar file alongside the final Reel. **Burn-in / on-video integration is explicitly out of scope.** The `.srt` is delivered as a standalone file the user will attach later themselves (YouTube upload, CapCut import, etc.).
+
+**Input detection.** Look for `<source-stem>.txt` or `<source-stem>.lyrics.txt` in the same folder as the source video. If absent and the user pasted lyrics in the prompt, save them to `work/<source-stem>.lyrics.txt` before processing. Accept free-form text — paragraphs, single block, or pre-broken lines. Don't require any pre-segmentation from the user.
+
+**Segmentation rules.**
+- **Maximum 3-4 syllables per cue line.** Count syllables by collapsing adjacent vowels into one group (French heuristic — accented variants count). A rough count is fine; the user reviews the draft.
+- **Preserve phrasing logic:** never split inside a word; prefer breaks at natural pauses (commas, periods, end of grammatical clauses, conjunctions like "et / mais / puis").
+- If a single word exceeds 4 syllables it gets its own cue (don't try to split a word).
+- Respect line breaks already present in the input as soft phrase hints — if the user pre-segmented, that's a signal worth honoring.
+
+**Timing.** Use the per-0.5s vocal-energy windows from `audio_analyze.py` (the `windows[*].vocal_n` field, already normalized to [0, 1]). Identify vocal-active phrases as contiguous runs of windows with `vocal_n` ≥ threshold (default 0.25 — tune per song if needed). Allocate cues across phrases proportionally to total syllable count; within each phrase, distribute cues by syllable count too. Leave instrumental gaps (intros, solos, outros) blank.
+
+**Draft and sign-off.** Before writing anything to `sortie/`, display the proposed `.srt` in the chat with timecodes and ask the user to confirm or correct. Only after sign-off, write the final file to `sortie/<source-stem> - Reel.srt`. This round-trip is mandatory — the user explicitly asked for it.
+
+**Helper.** `scripts/build_srt.py` wraps tokenization, syllable counting, cue packing, vocal-phrase detection, and proportional timing. Inputs: the `audio_analysis.json` already produced by step 2 of the common pipeline, plus the lyrics text file. Output to stdout or to `--out path.srt`.
+
 ## Output file naming
 
 Drop final videos in the user's chosen output folder (default `sortie/` if working inside this repo's depot/sortie workflow). Name format: `<source-stem> - Reel.mp4`. Keep intermediate `_v2`/`_v3` files only during iteration; rename to the final name and remove drafts once the user signs off.
+
+If a lyrics sidecar was produced, write it next to the video as `<source-stem> - Reel.srt`.
 
 ## When something doesn't fit
 
 - **Trim range outside source duration** → ask the user to verify the timecode. Don't silently clip.
 - **Multiple musicians span more than 32% of source width** (category 3) → you can't show all of them at 9:16 with zoom=1.0. Options: (a) use 2-shots only, no "full band" wide; (b) add letterbox bars (top+bottom black). Discuss with user.
-- **Whisper-based subtitles**: hard on singing voice with instrumentation. Don't promise automatic timing accuracy. If the user has provided lyrics, distribute lines proportionally to detected vocal-energy windows and show a draft for manual adjustment — don't burn in subtitles without explicit sign-off on timing.
+- **Whisper-based subtitles**: don't try to auto-transcribe singing voice over instrumentation — Whisper struggles and the timing is unreliable. If the user wants subtitles, they provide the lyrics; see the dedicated "Optional: subtitle (.srt) sidecar" section above. No on-video burn-in regardless of source.
 - **Audio drift after concat**: if `ffmpeg concat` produces audio sync issues, switch from the `concat` demuxer to `concat` filter (re-encode all video).
 
 ## Inputs the user typically gives
@@ -88,6 +108,7 @@ Drop final videos in the user's chosen output folder (default `sortie/` if worki
 - Category hint (sometimes — you may need to ask)
 - Concert info for end card: venue name, date, address (category 2 typically)
 - Logo path (PNG with transparency ideal)
+- **Lyrics (optional)** for a `.srt` sidecar — as a `.txt` file in the same folder as the source, or pasted in the prompt. See the dedicated section above.
 
 Confirm trim window matches what you'd compute from the source duration. Source can have a few seconds of leading silence/handling noise that the trim should skip.
 
