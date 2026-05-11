@@ -1,0 +1,61 @@
+# Project working folders (user content, never committed)
+depot/*
+!depot/.gitkeep
+sortie/*
+!sortie/.gitkeep
+
+# Render intermediates
+*.mp4
+*.mkv
+*.mov
+*.webm
+*.wav
+*.aac
+*.m4a
+*_chunk*.mkv
+chunk*.mkv
+v[0-9]_chunk*.mkv
+
+# Analysis outputs
+*audio_analysis.json
+*keyframes.json
+*persons_timeline.json
+*faces_timeline.json
+*vocal_timeline.json
+*audio_timeline.json
+
+# Preview/scratch artifacts
+preview*.jpg
+verify*.jpg
+verify*.png
+final_verify*.jpg
+*_grid.jpg
+thumbs/
+verify_*/
+last_seq/
+
+# Logs
+*.log
+
+# Models (auto-downloaded on first run)
+yunet.onnx
+res10.caffemodel
+deploy.prototxt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.python-version
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~

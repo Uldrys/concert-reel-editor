@@ -1,0 +1,33 @@
+{
+  "_comment": "Category 3 — Multi-musician (Peggy, 4-piece band on cave-bar stage). Source 2560x1440 16:9 trimmed 155-214s = 59s output. Tempo 92 BPM, 4/4. 11 shots with hard cuts on detected downbeats, 2 cross-dissolves at climax entry (47.32s) and outro entry (52.69s).",
+  "video_w": 2560,
+  "video_h": 1440,
+  "out_w": 1080,
+  "out_h": 1920,
+  "trim_start": 155.0,
+  "trim_end": 214.0,
+  "source": "Peggy.mp4",
+  "musicians": {
+    "guitar":  0.21,
+    "bass":    0.36,
+    "accord":  0.53,
+    "singer":  0.69
+  },
+  "shots": [
+    {"shot_id": 1,  "t_start": 0.00,  "t_end":  5.39, "cx": 0.610, "cy": 0.50, "zoom_start": 1.00, "zoom_end": 1.00, "focus": "duo-acc+singer", "notes": "establish on the duo"},
+    {"shot_id": 2,  "t_start": 5.39,  "t_end": 10.45, "cx": 0.530, "cy": 0.50, "zoom_start": 1.05, "zoom_end": 1.15, "focus": "accord",          "notes": "slow zoom in"},
+    {"shot_id": 3,  "t_start": 10.45, "t_end": 15.77, "cx": 0.690, "cy": 0.50, "zoom_start": 1.10, "zoom_end": 1.10, "focus": "singer",          "notes": "static"},
+    {"shot_id": 4,  "t_start": 15.77, "t_end": 21.04, "cx": 0.285, "cy": 0.50, "zoom_start": 1.00, "zoom_end": 1.00, "focus": "duo-guit+bass",   "notes": "rhythm section"},
+    {"shot_id": 5,  "t_start": 21.04, "t_end": 26.29, "cx": 0.210, "cy": 0.50, "zoom_start": 1.10, "zoom_end": 1.04, "focus": "guitar",          "notes": "subtle pull-back (reveal)"},
+    {"shot_id": 6,  "t_start": 26.29, "t_end": 31.53, "cx": 0.610, "cy": 0.50, "zoom_start": 1.00, "zoom_end": 1.00, "focus": "duo-acc+singer", "notes": "back to leads"},
+    {"shot_id": 7,  "t_start": 31.53, "t_end": 36.59, "cx": 0.530, "cy": 0.40, "zoom_start": 1.30, "zoom_end": 1.30, "focus": "accord-tight",    "notes": "emotional peak"},
+    {"shot_id": 8,  "t_start": 36.59, "t_end": 41.84, "cx": 0.360, "cy": 0.50, "zoom_start": 1.10, "zoom_end": 1.16, "focus": "bass",            "notes": "subtle build"},
+    {"shot_id": 9,  "t_start": 41.84, "t_end": 47.32, "cx": 0.210, "cy": 0.50, "zoom_start": 1.10, "zoom_end": 1.20, "focus": "guitar",          "notes": "build instrumental break"},
+    {"shot_id": 10, "t_start": 47.32, "t_end": 52.69, "cx": 0.610, "cy": 0.50, "zoom_start": 1.00, "zoom_end": 1.05, "focus": "duo-acc+singer", "notes": "subtle push at climax"},
+    {"shot_id": 11, "t_start": 52.69, "t_end": 59.00, "cx": 0.690, "cy": 0.40, "zoom_start": 1.25, "zoom_end": 1.10, "focus": "singer-tight",    "notes": "pull back, settle"}
+  ],
+  "dissolves": [
+    [47.12, 47.52],
+    [52.49, 52.89]
+  ]
+}
