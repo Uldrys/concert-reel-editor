@@ -31,6 +31,19 @@ Several musicians on a stage, each at a fixed position, no significant movement.
 
 If unsure, ask the user. Don't auto-assume.
 
+## Toolchain
+
+All scripts assume ffmpeg + Python deps (librosa, opencv-python-headless, scipy, pillow, soundfile, numpy) are available. The repo ships a `Dockerfile` plus a wrapper at `scripts/cre` that runs any command inside the image with the working directory mounted at `/work` and the host UID/GID. **Prefer the wrapper** unless the user has already set up their host natively:
+
+```
+docker build -t concert-reel-editor .        # one-time
+./scripts/cre python3 scripts/audio_analyze.py depot/song.mp4 0 30 --out work/song/audio.json
+./scripts/cre ffmpeg -i depot/song.mp4 ...
+./scripts/cre bash                            # interactive shell
+```
+
+If the wrapper isn't available (e.g. older checkout), check whether ffmpeg + python deps are on the host before falling back to inline commands. Do not invoke ffmpeg directly from the host if it's not installed — build the image instead.
+
 ## Common pipeline (every category)
 
 Every output goes through these stages. The "build plan" step is category-specific (see each reference). Everything else is shared.
@@ -72,9 +85,11 @@ These were the conventions that emerged from the three reference cases. They're 
 
 ## Optional: subtitle (.srt) sidecar
 
-If the user provides lyrics — either as a text file dropped next to the source in `depot/`, or pasted directly in the prompt — produce a `.srt` sidecar file alongside the final Reel. **Burn-in / on-video integration is explicitly out of scope.** The `.srt` is delivered as a standalone file the user will attach later themselves (YouTube upload, CapCut import, etc.).
+If the user provides lyrics — either as a text file dropped next to the source in `depot/`, or pasted directly in the prompt — produce a `.srt` sidecar file alongside the final Reel. **Burn-in / on-video integration is explicitly out of scope.** The `.srt` is delivered as a standalone file the user will attach later themselves (YouTube upload, CapCut import, etc.). Auto-aligned burn-in was tried in this codebase and abandoned (2026-05-12) — REPET-based vocal energy separation is too unreliable on accordion-heavy chanson to produce correctly-timed cues. Until a real source-separation pipeline is added (Demucs etc.), do not re-attempt unless the user explicitly asks.
 
 **Input detection.** Look for `<source-stem>.txt` or `<source-stem>.lyrics.txt` in the same folder as the source video. If absent and the user pasted lyrics in the prompt, save them to `work/<source-stem>.lyrics.txt` before processing. Accept free-form text — paragraphs, single block, or pre-broken lines. Don't require any pre-segmentation from the user.
+
+**Extracted-lyrics confirmation gate (mandatory).** When the lyrics come from anything *other than* direct typed/pasted text — image OCR, screenshot of a notebook, photo of handwritten paper, audio attachment, video frame, scanned PDF, etc. — you MUST display your full transcription in chat and wait for explicit user confirmation **before** generating the SRT or saving the lyrics file. Flag every word you're unsure about (handwriting ambiguity, illegible passages, marginal annotations that may or may not be part of the song). A bad transcription that slips into the .srt is hard to spot, and if it's already burned into a render the only fix is to re-encode from scratch. This gate is non-negotiable — the same draft-and-sign-off principle that applies to the SRT itself applies one level upstream.
 
 **Segmentation rules.**
 - **Maximum 3-4 syllables per cue line.** Count syllables by collapsing adjacent vowels into one group (French heuristic — accented variants count). A rough count is fine; the user reviews the draft.

@@ -5,8 +5,9 @@ zero to a finished Reel, for each of the 3 categories. Use these as a template
 when working on a new video.
 
 Assumes: the working directory is the repo root, the source video is in `depot/`,
-ffmpeg is on PATH, and `pip install opencv-python librosa scipy pillow soundfile`
-has been done once.
+and the toolchain is available — either via Docker (`docker build -t concert-reel-editor .`
+once, then prefix every command below with `./scripts/cre`) or natively (ffmpeg on
+PATH + `pip install opencv-python-headless librosa scipy pillow soundfile`).
 
 ## Common preamble (every category)
 
@@ -70,6 +71,7 @@ ffmpeg -y -f concat -safe 0 -i "$WORK/concat.txt" \
     -movflags +faststart -c:a aac -b:a 128k -t $DUR \
     "sortie/$(basename "$SOURCE" .mp4) - Reel.mp4"
 ```
+
 
 ## Category 2 (Static single musician)
 

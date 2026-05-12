@@ -3,6 +3,7 @@ depot/*
 !depot/.gitkeep
 sortie/*
 !sortie/.gitkeep
+work/
 
 # Render intermediates
 *.mp4

@@ -73,13 +73,27 @@ Read the file structure, load `SKILL.md` as a system prompt component, and expos
 
 ## Dependencies (runtime)
 
-The scripts assume a Linux/macOS environment with:
+Two ways to set up the toolchain. **Docker is the recommended path** — one command, no host pollution, reproducible.
+
+### Option A — Docker (recommended)
+
+```bash
+docker build -t concert-reel-editor .
+./scripts/cre python3 scripts/audio_analyze.py depot/song.mp4 0 30 \
+    --out work/song/audio.json
+```
+
+`scripts/cre` is a thin wrapper that runs any command inside the image, mounts the current directory at `/work`, and uses your host UID/GID so output files aren't owned by root. Run `./scripts/cre bash` for an interactive shell. The image bundles ffmpeg (with libx264 + AAC), Python 3.11, librosa, scipy, opencv-python-headless, pillow, soundfile, numpy, and DejaVu fonts.
+
+### Option B — Native install
+
+If you'd rather run on your host directly:
 
 - Python 3.10+
 - `ffmpeg` + `ffprobe` on PATH (with libx264, AAC, libass)
-- `pip install opencv-python librosa scipy pillow soundfile`
+- `pip install opencv-python-headless librosa scipy pillow soundfile`
 
-For face detection, the scripts auto-download the YuNet ONNX model on first run (~232 KB).
+For face detection, the scripts auto-download the YuNet ONNX model on first run (~232 KB) — works the same under Docker or native (the model is cached in the mounted working directory).
 
 ## Quick start (manual run, no Claude)
 

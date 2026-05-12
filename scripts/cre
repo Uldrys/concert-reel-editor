@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Concert Reel Editor — Docker wrapper.
+#
+# Runs any command inside the concert-reel-editor image, with the current
+# working directory mounted at /work and using the host UID:GID so output
+# files aren't owned by root.
+#
+# Usage:
+#     ./scripts/cre python3 scripts/audio_analyze.py depot/song.mp4 0 30 \
+#         --out work/song/audio.json
+#     ./scripts/cre ffmpeg -i depot/song.mp4 -t 5 work/preview.mp4
+#     ./scripts/cre bash    # interactive shell inside the image
+#
+# Build the image once (or after Dockerfile/requirements changes):
+#     docker build -t concert-reel-editor .
+set -euo pipefail
+
+IMAGE="${CRE_IMAGE:-concert-reel-editor:latest}"
+
+if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+    echo "Image '$IMAGE' not found. Build it first:" >&2
+    echo "    docker build -t concert-reel-editor ." >&2
+    exit 1
+fi
+
+# Default to a shell when called without args, otherwise run the args as-is.
+if [ $# -eq 0 ]; then
+    set -- bash
+fi
+
+# Only allocate a TTY when stdin actually is one (interactive shells).
+# Pipes, redirected stdin, and non-interactive callers don't have a TTY,
+# and `-t` would fail with "the input device is not a TTY".
+TTY_FLAG=""
+if [ -t 0 ] && [ -t 1 ]; then
+    TTY_FLAG="-it"
+fi
+
+exec docker run --rm $TTY_FLAG \
+    --user "$(id -u):$(id -g)" \
+    -v "$PWD:/work" \
+    -w /work \
+    -e HOME=/tmp \
+    "$IMAGE" \
+    "$@"
